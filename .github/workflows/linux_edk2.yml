@@ -3,7 +3,7 @@
 
 name: UEFI firmware - EDK2 build
 
-on:  
+on:
   push:
     tags:
       - '*'
@@ -23,7 +23,9 @@ jobs:
     - name: Check out EDK2 submodules
       run: git submodule update --init --recursive
     - name: Patch EDK2 repositories
-      run: patch --binary -d edk2 -p1 -i ../0001-MdeModulePkg-UefiBootManagerLib-Signal-ReadyToBoot-o.patch
+      run: |
+        patch --binary -d edk2 -p1 -i ../0001-MdeModulePkg-UefiBootManagerLib-Signal-ReadyToBoot-o.patch
+        patch --binary -d edk2-platforms -p1 -i ../0002-RaspberryPi-RPi4dsc-RamLimitOff.patch
     - name: Set up EDK2
       run: make -C edk2/BaseTools
     - name: Set up Secure Boot default keys
@@ -44,8 +46,8 @@ jobs:
         export DEFAULT_KEYS="-D DEFAULT_KEYS=TRUE -D PK_DEFAULT_FILE=$WORKSPACE/keys/pk.cer -D KEK_DEFAULT_FILE1=$WORKSPACE/keys/ms_kek.cer -D DB_DEFAULT_FILE1=$WORKSPACE/keys/ms_db1.cer -D DB_DEFAULT_FILE2=$WORKSPACE/keys/ms_db2.cer -D DBX_DEFAULT_FILE1=$WORKSPACE/keys/arm64_dbx.bin"
         source edk2/edksetup.sh
         # EDK2's 'build' command doesn't play nice with spaces in environmnent variables, so we can't move the PCDs there...
-        build -a AARCH64 -t GCC5 -p edk2-platforms/Platform/RaspberryPi/RPi4/RPi4.dsc -b DEBUG --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor=L"https://github.com/pftf/RPi4" --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString=L"UEFI Firmware ${{steps.set_version.outputs.version}}" ${BUILD_FLAGS} ${DEFAULT_KEYS}
-        build -a AARCH64 -t GCC5 -p edk2-platforms/Platform/RaspberryPi/RPi4/RPi4.dsc -b RELEASE --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor=L"https://github.com/pftf/RPi4" --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString=L"UEFI Firmware ${{steps.set_version.outputs.version}}" ${BUILD_FLAGS} ${DEFAULT_KEYS}
+        build -a AARCH64 -t GCC5 -p edk2-platforms/Platform/RaspberryPi/RPi4/RPi4.dsc -b DEBUG --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor=L"https://github.com/FwMotion/RPi4" --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString=L"UEFI Firmware ${{steps.set_version.outputs.version}}" ${BUILD_FLAGS} ${DEFAULT_KEYS}
+        build -a AARCH64 -t GCC5 -p edk2-platforms/Platform/RaspberryPi/RPi4/RPi4.dsc -b RELEASE --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor=L"https://github.com/FwMotion/RPi4" --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString=L"UEFI Firmware ${{steps.set_version.outputs.version}}" ${BUILD_FLAGS} ${DEFAULT_KEYS}
         cp Build/RPi4/RELEASE_GCC5/FV/RPI_EFI.fd .
     - name: Upload UEFI firmware artifacts
       uses: actions/upload-artifact@v2
@@ -62,8 +64,10 @@ jobs:
         curl -O -L https://github.com/raspberrypi/firmware/raw/master/boot/bcm2711-rpi-cm4.dtb
         curl -O -L https://github.com/raspberrypi/firmware/raw/master/boot/bcm2711-rpi-400.dtb
         curl -O -L https://github.com/raspberrypi/firmware/raw/master/boot/overlays/miniuart-bt.dtbo
+        curl -O -L https://github.com/raspberrypi/firmware/raw/master/boot/overlays/rpi-poe.dtbo
+        curl -O -L https://github.com/raspberrypi/firmware/raw/master/boot/overlays/rpi-poe-plus.dtbo
         mkdir overlays
-        mv miniuart-bt.dtbo overlays
+        mv *.dtbo overlays
     - name: Create UEFI firmware archive
       run: zip -r RPi4_UEFI_Firmware_${{steps.set_version.outputs.version}}.zip RPI_EFI.fd *.dtb config.txt fixup4.dat start4.elf overlays Readme.md firmware
     - name: Display SHA-256
