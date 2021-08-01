@@ -3,13 +3,13 @@
 
 name: UEFI firmware - EDK2 build
 
-on:  
+on:
   push:
     tags:
       - '*'
 
 env:
-  PROJECT_URL: https://github.com/pftf/RPi4
+  PROJECT_URL: https://github.com/FwMotion/RPi4
   RPI_FIRMWARE_URL: https://github.com/raspberrypi/firmware/
   ARCH: AARCH64
   COMPILER: GCC5
@@ -42,6 +42,7 @@ jobs:
       run: |
         patch --binary -d edk2 -p1 -i ../0001-MdeModulePkg-UefiBootManagerLib-Signal-ReadyToBoot-o.patch
         patch --binary -d edk2-platforms -p1 -i ../0002-Check-for-Boot-Discovery-Policy-change.patch
+        patch --binary -d edk2-platforms -p1 -i ../fwm0001-RaspberryPi-RPi4dsc-RamLimitOff.patch
 
     - name: Set up EDK2
       run: make -C edk2/BaseTools
@@ -84,9 +85,12 @@ jobs:
         curl -O -L ${{ env.RPI_FIRMWARE_URL }}/raw/${{ env.DTB_VERSION }}/boot/bcm2711-rpi-cm4.dtb
         curl -O -L ${{ env.RPI_FIRMWARE_URL }}/raw/${{ env.DTB_VERSION }}/boot/bcm2711-rpi-400.dtb
         curl -O -L ${{ env.RPI_FIRMWARE_URL }}/raw/${{ env.DTBO_VERSION }}/boot/overlays/miniuart-bt.dtbo
+        curl -O -L ${{ env.RPI_FIRMWARE_URL }}/raw/${{ env.DTBO_VERSION }}/boot/overlays/disable-bt.dtbo
+        curl -O -L ${{ env.RPI_FIRMWARE_URL }}/raw/${{ env.DTBO_VERSION }}/boot/overlays/disable-wifi.dtbo
+        curl -O -L ${{ env.RPI_FIRMWARE_URL }}/raw/${{ env.DTBO_VERSION }}/boot/overlays/rpi-poe.dtbo
+        curl -O -L ${{ env.RPI_FIRMWARE_URL }}/raw/${{ env.DTBO_VERSION }}/boot/overlays/rpi-poe-plus.dtbo
         mkdir overlays
-        mv miniuart-bt.dtbo overlays
-
+        mv *.dtbo overlays
     - name: Create UEFI firmware archive
       run: zip -r RPi4_UEFI_Firmware_${{ steps.set_version.outputs.version }}.zip RPI_EFI.fd *.dtb config.txt fixup4.dat start4.elf overlays Readme.md firmware
 

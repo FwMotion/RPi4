@@ -5,6 +5,10 @@ enable_gic=1
 armstub=RPI_EFI.fd
 disable_commandline_tags=1
 disable_overscan=1
+disable_splash=1
 device_tree_address=0x1f0000
 device_tree_end=0x200000
 dtoverlay=miniuart-bt
+
+# Change to rpi-poe-plus for the PoE+ HAT
+dtoverlay=rpi-poe
