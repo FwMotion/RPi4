@@ -1,0 +1,13 @@
+diff --git a/Platform/RaspberryPi/RPi4/RPi4.dsc b/Platform/RaspberryPi/RPi4/RPi4.dsc
+index fd73c4d14b..dfeab15b31 100644
+--- a/Platform/RaspberryPi/RPi4/RPi4.dsc
++++ b/Platform/RaspberryPi/RPi4/RPi4.dsc
+@@ -508,7 +508,7 @@
+   # Supporting > 3GB of memory.
+   #
+   gRaspberryPiTokenSpaceGuid.PcdRamMoreThan3GB|L"RamMoreThan3GB"|gConfigDxeFormSetGuid|0x0|0
+-  gRaspberryPiTokenSpaceGuid.PcdRamLimitTo3GB|L"RamLimitTo3GB"|gConfigDxeFormSetGuid|0x0|1
++  gRaspberryPiTokenSpaceGuid.PcdRamLimitTo3GB|L"RamLimitTo3GB"|gConfigDxeFormSetGuid|0x0|0
+ 
+   #
+   # Device Tree and ACPI selection.
