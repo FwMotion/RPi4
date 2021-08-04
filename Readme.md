@@ -17,7 +17,7 @@ For the original builds without customization, visit [the Pi Firmware Task Force
 The following changes have been applied to customize the build:
 
 1. Disable RAM Limiter by default
-2. Include the PoE HAT and PoE+ HAT devicetree overlays
+2. Include the several additional devicetree overlays (including PoE HAT, PoE+ HAT)
 3. Enable the PoE HAT devicetree overlay by default
 4. Changed the UEFI Firmware Vendor string
 5. Disable the Raspberry Pi firmware rainbow splash
